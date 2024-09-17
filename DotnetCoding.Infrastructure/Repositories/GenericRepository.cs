@@ -15,7 +15,7 @@ namespace DotnetCoding.Infrastructure.Repositories
 
         public async Task<IEnumerable<T>> GetAll()
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            return await _dbContext.Set<T>().AsNoTracking().ToListAsync();
         }
         public IQueryable<T> Query(Expression<Func<T, bool>> condition, params Expression<Func<T, object>>[] includes)
         {
@@ -25,7 +25,7 @@ namespace DotnetCoding.Infrastructure.Repositories
             {
                 query = query.Where(condition);
             }
-            query.ToListAsync();
+
             return WithIncludes(query, includes);
         }
 

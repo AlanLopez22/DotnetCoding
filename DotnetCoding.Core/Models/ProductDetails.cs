@@ -8,9 +8,9 @@
         public double Price { get; set; }
         public ProductStatus Status { get; set; }
         public ProductState State { get; set; }
-        public DateTime? PostedDate { get; set; } = DateTime.MinValue;
-        public DateTime? UpdatedDate { get; set; } = DateTime.MinValue;
-        public DateTime? DeletedDate { get; set; } = DateTime.MinValue;
+        public DateTime? PostedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
 
         public ICollection<ProductQueue> Queues { get; set; } = new List<ProductQueue>();
     }

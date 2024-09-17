@@ -14,9 +14,9 @@ namespace DotnetCoding.Infrastructure.ServiceExtension
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IProductQueueRepository, ProductQueueRepository>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IProductQueueRepository, ProductQueueRepository>();
 
             return services;
         }

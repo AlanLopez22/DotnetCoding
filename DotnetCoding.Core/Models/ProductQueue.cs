@@ -6,9 +6,9 @@
         public Guid ProductId { get; set; }
         public QueueState State { get; set; }
         public string RequestReason { get; set; } = string.Empty;
-        public DateTime RequestedDate { get; set; } = DateTime.MinValue;
-        public DateTime? RejectedDate { get; set; } = DateTime.MinValue;
-        public DateTime? ApprovedDate { get; set; } = DateTime.MinValue;
+        public DateTime RequestedDate { get; set; }
+        public DateTime? RejectedDate { get; set; }
+        public DateTime? ApprovedDate { get; set; }
         public ProductDetails? Product { get; set; }
     }
 }

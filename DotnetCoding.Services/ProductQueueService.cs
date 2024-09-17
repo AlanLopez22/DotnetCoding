@@ -53,6 +53,8 @@ namespace DotnetCoding.Services
                     throw new ArgumentOutOfRangeException("Unsupported state.");
             }
 
+            productQueue.ApprovedDate = DateTime.UtcNow;
+            productQueue.State = QueueState.Inactive;
             _unitOfWork.Update(productQueue);
             return await Save(ErrorMessages.CouldNotApproveProductQueue);
         }
@@ -69,6 +71,8 @@ namespace DotnetCoding.Services
             var productQueue = productQueueResponse.Queue!;
             productQueue.State = QueueState.Rejected;
             productQueue.RejectedDate = DateTime.UtcNow;
+            productQueue.Product.Status = ProductStatus.Deleted;
+            productQueue.Product.UpdatedDate = DateTime.UtcNow;
             _unitOfWork.Update(productQueue);
             return await Save(ErrorMessages.CouldNotRejectProductQueue);
         }
@@ -78,7 +82,7 @@ namespace DotnetCoding.Services
             ArgumentNullException.ThrowIfNull(id);
             Response? response = null;
             var productQueue = await _unitOfWork.ProductQueues
-                .Query(x => x.Id == id)
+                .Query(x => x.Id == id, i => i.Product)
                 .FirstOrDefaultAsync();
 
             if (productQueue == null)
@@ -95,7 +99,6 @@ namespace DotnetCoding.Services
             ArgumentNullException.ThrowIfNull(productQueue.Product);
             productQueue.Product.Status = ProductStatus.Active;
             productQueue.Product.State = ProductState.Create;
-            productQueue.Product.PostedDate = DateTime.UtcNow;
         }
 
         private static void HandleUpdateState(ProductQueue productQueue)

@@ -5,6 +5,7 @@
         Add = 1,
         Delete = 2,
         Update = 3,
-        Rejected = 4
+        Rejected = 4,
+        Inactive = 5
     }
 }

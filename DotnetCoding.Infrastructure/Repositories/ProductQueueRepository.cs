@@ -13,7 +13,7 @@ namespace DotnetCoding.Infrastructure.Repositories
 
         public async Task<IEnumerable<ProductQueue>> GetAllForApproval()
         {
-            return await Query(x => x.State != QueueState.Rejected, i => i.Product!)
+            return await Query(x => x.State != QueueState.Rejected && x.State != QueueState.Inactive, i => i.Product!)
                 .OrderBy(x => x.RequestedDate)
                 .ToListAsync();
         }

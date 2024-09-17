@@ -35,13 +35,6 @@ namespace DotnetCoding.Services
             return ResponseBuilder.Create(HttpStatusCode.OK, productListResponse);
         }
 
-        public async Task<Response<IEnumerable<ProductApprovalResponse>>> GetProductApprovals()
-        {
-            var productQueues = await _unitOfWork.ProductQueues.GetAllForApproval();
-            var productListResponse = _mapper.Map<IEnumerable<ProductApprovalResponse>>(productQueues);
-            return ResponseBuilder.Create(HttpStatusCode.OK, productListResponse);
-        }
-
         public async Task<Response<IEnumerable<ProductListResponse>>> SearchProducts(SearchProductRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);

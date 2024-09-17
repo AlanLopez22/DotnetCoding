@@ -25,18 +25,18 @@ namespace DotnetCoding.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(request.ProductName))
             {
-                query.Where(w => w.Name.Contains(request.ProductName, StringComparison.OrdinalIgnoreCase));
+                query = query.WithTerm(w => w.Name, request.ProductName);
             }
 
             if (request.FromPostedDate.HasValue && request.ToPostedDate.HasValue)
             {
-                query.Where(w => w.PostedDate >= request.FromPostedDate.Value
+                query = query.Where(w => w.PostedDate >= request.FromPostedDate.Value
                     && w.PostedDate <= request.ToPostedDate.Value);
             }
 
             if (request.MinPrice.HasValue && request.MaxPrice.HasValue)
             {
-                query.Where(w => w.Price >= request.MinPrice.Value
+                query = query.Where(w => w.Price >= request.MinPrice.Value
                     && w.Price <= request.MaxPrice.Value);
             }
 
