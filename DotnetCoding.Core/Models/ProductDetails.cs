@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public int Price { get; set; }
+        public double Price { get; set; }
         public string Status { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public DateTime PostedDate { get; set; } = DateTime.MinValue;
