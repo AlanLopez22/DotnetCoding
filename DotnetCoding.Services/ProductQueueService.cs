@@ -54,7 +54,7 @@ namespace DotnetCoding.Services
             }
 
             productQueue.ApprovedDate = DateTime.UtcNow;
-            productQueue.State = QueueState.Inactive;
+            productQueue.State = QueueState.Approved;
             _unitOfWork.Update(productQueue);
             return await Save(ErrorMessages.CouldNotApproveProductQueue);
         }
@@ -71,8 +71,7 @@ namespace DotnetCoding.Services
             var productQueue = productQueueResponse.Queue!;
             productQueue.State = QueueState.Rejected;
             productQueue.RejectedDate = DateTime.UtcNow;
-            productQueue.Product.Status = ProductStatus.Deleted;
-            productQueue.Product.UpdatedDate = DateTime.UtcNow;
+            productQueue.Product!.UpdatedDate = DateTime.UtcNow;
             _unitOfWork.Update(productQueue);
             return await Save(ErrorMessages.CouldNotRejectProductQueue);
         }
@@ -82,12 +81,22 @@ namespace DotnetCoding.Services
             ArgumentNullException.ThrowIfNull(id);
             Response? response = null;
             var productQueue = await _unitOfWork.ProductQueues
-                .Query(x => x.Id == id, i => i.Product)
+                .Query(x => x.Id == id, i => i.Product!, i => i.ChangeRequest!)
                 .FirstOrDefaultAsync();
 
             if (productQueue == null)
             {
                 response = ResponseBuilder.Create(HttpStatusCode.NotFound, ErrorMessages.ProductQueueNotFound);
+            }
+
+            if (productQueue?.State == QueueState.Rejected)
+            {
+                response = ResponseBuilder.Create(HttpStatusCode.BadRequest, ErrorMessages.ProductQueueHasBeenRejected);
+            }
+
+            if (productQueue?.State == QueueState.Approved)
+            {
+                response = ResponseBuilder.Create(HttpStatusCode.BadRequest, ErrorMessages.ProductQueueHasBeenApproved);
             }
 
             return (productQueue, response);
@@ -99,6 +108,8 @@ namespace DotnetCoding.Services
             ArgumentNullException.ThrowIfNull(productQueue.Product);
             productQueue.Product.Status = ProductStatus.Active;
             productQueue.Product.State = ProductState.Create;
+            productQueue.Product.PostedDate = DateTime.UtcNow;
+            HandleChangeRequest(productQueue);
         }
 
         private static void HandleUpdateState(ProductQueue productQueue)
@@ -108,6 +119,7 @@ namespace DotnetCoding.Services
             productQueue.Product.Status = ProductStatus.Active;
             productQueue.Product.State = ProductState.Update;
             productQueue.Product.UpdatedDate = DateTime.UtcNow;
+            HandleChangeRequest(productQueue);
         }
 
         private static void HandleDeleteState(ProductQueue productQueue)
@@ -117,6 +129,24 @@ namespace DotnetCoding.Services
             productQueue.Product.Status = ProductStatus.Deleted;
             productQueue.Product.State = ProductState.Delete;
             productQueue.Product.DeletedDate = DateTime.UtcNow;
+        }
+
+        private static void HandleChangeRequest(ProductQueue productQueue)
+        {
+            if (productQueue == null || productQueue.ChangeRequest == null)
+            {
+                return;
+            }
+
+            if (productQueue.ChangeRequest?.PropertyName == nameof(ProductDetails.Price))
+            {
+                productQueue.Product.Price = Convert.ToDouble(productQueue.ChangeRequest.NewValue);
+            }
+
+            if (productQueue.ChangeRequest?.PropertyName == nameof(ProductDetails.Name))
+            {
+                productQueue.Product.Name = productQueue.ChangeRequest.NewValue;
+            }
         }
 
         private async Task<Response> Save(string errorMessage)

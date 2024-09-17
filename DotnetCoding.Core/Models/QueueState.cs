@@ -6,6 +6,6 @@
         Delete = 2,
         Update = 3,
         Rejected = 4,
-        Inactive = 5
+        Approved = 5
     }
 }

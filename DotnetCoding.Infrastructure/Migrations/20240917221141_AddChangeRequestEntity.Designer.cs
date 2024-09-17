@@ -4,6 +4,7 @@ using DotnetCoding.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DotnetCoding.Infrastructure.Migrations
 {
     [DbContext(typeof(DbContextClass))]
-    partial class DbContextClassModelSnapshot : ModelSnapshot
+    [Migration("20240917221141_AddChangeRequestEntity")]
+    partial class AddChangeRequestEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,8 +47,7 @@ namespace DotnetCoding.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductQueueId")
-                        .IsUnique();
+                    b.HasIndex("ProductQueueId");
 
                     b.ToTable("ChangeRequest", (string)null);
                 });
@@ -138,8 +139,8 @@ namespace DotnetCoding.Infrastructure.Migrations
             modelBuilder.Entity("DotnetCoding.Core.Models.ChangeRequest", b =>
                 {
                     b.HasOne("DotnetCoding.Core.Models.ProductQueue", "ProductQueue")
-                        .WithOne("ChangeRequest")
-                        .HasForeignKey("DotnetCoding.Core.Models.ChangeRequest", "ProductQueueId")
+                        .WithMany("ChangeRequests")
+                        .HasForeignKey("ProductQueueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -164,7 +165,7 @@ namespace DotnetCoding.Infrastructure.Migrations
 
             modelBuilder.Entity("DotnetCoding.Core.Models.ProductQueue", b =>
                 {
-                    b.Navigation("ChangeRequest");
+                    b.Navigation("ChangeRequests");
                 });
 #pragma warning restore 612, 618
         }

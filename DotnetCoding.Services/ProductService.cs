@@ -53,7 +53,7 @@ namespace DotnetCoding.Services
             }
 
             var product = CreateNewProduct(request);
-            IsPriceOverFiveThousand(request.Price, product);
+            IsPriceOverFiveThousand(request.Price, product, QueueState.Add);
             _unitOfWork.Add(product);
             return await SaveAsync(ErrorMessages.CouldNotCreateProduct);
         }
@@ -81,7 +81,7 @@ namespace DotnetCoding.Services
             ArgumentNullException.ThrowIfNull(productId);
 
             var product = await _unitOfWork.Products
-                .Query(x => x.Id == productId)
+                .Query(x => x.Id == productId, i => i.Queues)
                 .FirstOrDefaultAsync();
 
             if (product == null)
@@ -98,7 +98,6 @@ namespace DotnetCoding.Services
             product.Id = Guid.NewGuid();
             product.State = ProductState.Create;
             product.Status = ProductStatus.Active;
-            product.PostedDate = DateTime.UtcNow;
             return product;
         }
 
@@ -113,11 +112,16 @@ namespace DotnetCoding.Services
             };
         }
 
-        private static bool IsPriceOverFiveThousand(double price, ProductDetails product)
+        private static bool IsPriceOverFiveThousand(double price, ProductDetails product, QueueState state)
         {
             if (price > 5000)
             {
-                var productQueue = CreateProductQueue(QueueState.Add, Messages.PriceMoreFiveThousand);
+                var productQueue = CreateProductQueue(state, Messages.PriceMoreFiveThousand);
+                productQueue.ChangeRequest = new ChangeRequest
+                {
+                    PropertyName = nameof(ProductDetails.Price),
+                    NewValue = product.Price.ToString()
+                };
                 product.Status = ProductStatus.ApprovalRequired;
                 product.Queues.Add(productQueue);
                 return true;
@@ -126,23 +130,32 @@ namespace DotnetCoding.Services
             return false;
         }
 
-        private static void HandleProductQueue(ChangeProductPriceRequest request, ProductDetails product)
+        private void HandleProductQueue(ChangeProductPriceRequest request, ProductDetails product)
         {
-            if (request.NewPrice > (product.Price * 1.5))
+            if (request.NewPrice >= (product.Price * 1.5))
             {
                 var productQueue = CreateProductQueue(QueueState.Update, Messages.PriceMoreThanFiftyPercent);
                 product.Status = ProductStatus.ApprovalRequired;
                 product.Queues.Add(productQueue);
+                ChangeRequest changeRequest = new ChangeRequest
+                {
+                    PropertyName = nameof(ProductDetails.Price),
+                    CurrentValue = product.Price.ToString(),
+                    NewValue = request.NewPrice.ToString(),
+                    ProductQueue = productQueue,
+                };
+                _unitOfWork.Add(changeRequest);
                 return;
             }
 
-            if (IsPriceOverFiveThousand(request.NewPrice, product))
+            if (IsPriceOverFiveThousand(request.NewPrice, product, QueueState.Update))
             {
                 return;
             }
 
             product.State = ProductState.Update;
             product.UpdatedDate = DateTime.UtcNow;
+            product.Price = request.NewPrice;
         }
 
         private async Task<Response> AddProductIntoQueue(ProductDetails product)

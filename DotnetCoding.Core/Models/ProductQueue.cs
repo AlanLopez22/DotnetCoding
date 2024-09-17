@@ -10,5 +10,6 @@
         public DateTime? RejectedDate { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public ProductDetails? Product { get; set; }
+        public ChangeRequest? ChangeRequest { get; set; }
     }
 }
