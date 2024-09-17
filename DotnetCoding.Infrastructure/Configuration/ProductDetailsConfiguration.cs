@@ -13,11 +13,9 @@ namespace DotnetCoding.Infrastructure.Configuration
             builder.Property(p => p.Name).IsRequired().HasMaxLength(50);
             builder.Property(p => p.Description).IsRequired().HasMaxLength(500);
             builder.Property(p => p.Price).IsRequired().HasColumnType("decimal(18, 2)");
-            builder.Property(p => p.Status).IsRequired().HasMaxLength(50);
-            builder.Property(p => p.IsActive).IsRequired();
-            builder.Property(p => p.PostedDate).IsRequired();
+            builder.Property(p => p.Status).IsRequired();
+            builder.Property(p => p.State).IsRequired();;
 
-            builder.HasIndex(p => new { p.IsActive, p.PostedDate });
             builder.HasIndex(p => p.Name);
             builder.HasIndex(p => p.PostedDate);
             builder.HasIndex(p => p.Price);

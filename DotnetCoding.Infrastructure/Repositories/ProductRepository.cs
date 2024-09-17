@@ -14,14 +14,14 @@ namespace DotnetCoding.Infrastructure.Repositories
 
         public async Task<IEnumerable<ProductDetails>> GetAllActives()
         {
-            return await Query(x => x.IsActive)
+            return await Query(x => x.Status == ProductStatus.Active)
                 .OrderByDescending(x => x.PostedDate)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<ProductDetails>> Search(SearchProductRequest request)
         {
-            var query = Query(x => x.IsActive);
+            var query = Query(x => x.Status == ProductStatus.Active);
 
             if (!string.IsNullOrWhiteSpace(request.ProductName))
             {

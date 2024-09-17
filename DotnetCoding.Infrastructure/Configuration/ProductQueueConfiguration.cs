@@ -10,16 +10,16 @@ namespace DotnetCoding.Infrastructure.Configuration
         {
             builder.ToTable(nameof(ProductQueue));
             builder.HasKey(h => h.Id);
-            builder.Property(p => p.RequestReason).IsRequired().HasMaxLength(200);
-            builder.Property(p => p.Status).IsRequired().HasMaxLength(50);
-            builder.Property(p => p.RequestDate).IsRequired();
             builder.Property(p => p.ProductId).IsRequired();
+            builder.Property(p => p.State).IsRequired();
+            builder.Property(p => p.RequestReason).IsRequired().HasMaxLength(200);
+            builder.Property(p => p.RequestedDate).IsRequired();
 
             builder.HasOne(x => x.Product)
                 .WithMany(x => x.Queues);
 
-            builder.HasIndex(p => p.RequestDate);
-            builder.HasIndex(p => p.Status);
+            builder.HasIndex(p => p.RequestedDate);
+            builder.HasIndex(p => p.State);
             builder.HasIndex(p => p.ProductId);
         }
     }

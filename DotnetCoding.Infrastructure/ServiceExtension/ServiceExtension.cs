@@ -16,6 +16,7 @@ namespace DotnetCoding.Infrastructure.ServiceExtension
             });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductQueueRepository, ProductQueueRepository>();
 
             return services;
         }

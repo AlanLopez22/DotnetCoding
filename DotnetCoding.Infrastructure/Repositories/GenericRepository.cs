@@ -17,7 +17,7 @@ namespace DotnetCoding.Infrastructure.Repositories
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
-        public virtual IQueryable<T> Query(Expression<Func<T, bool>> condition, params Expression<Func<T, object>>[] includes)
+        public IQueryable<T> Query(Expression<Func<T, bool>> condition, params Expression<Func<T, object>>[] includes)
         {
             var query = (IQueryable<T>)_dbContext.Set<T>();
 
@@ -38,5 +38,6 @@ namespace DotnetCoding.Infrastructure.Repositories
 
             return query;
         }
+
     }
 }
