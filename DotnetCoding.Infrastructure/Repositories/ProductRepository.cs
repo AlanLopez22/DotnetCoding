@@ -1,5 +1,7 @@
 ﻿using DotnetCoding.Core.Interfaces;
 using DotnetCoding.Core.Models;
+using DotnetCoding.Core.Requests;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotnetCoding.Infrastructure.Repositories
 {
@@ -8,6 +10,39 @@ namespace DotnetCoding.Infrastructure.Repositories
         public ProductRepository(DbContextClass dbContext) : base(dbContext)
         {
 
+        }
+
+        public async Task<IEnumerable<ProductDetails>> GetAllActives()
+        {
+            return await Query(x => x.IsActive)
+                .OrderByDescending(x => x.PostedDate)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductDetails>> Search(SearchProductRequest request)
+        {
+            var query = Query(x => x.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(request.ProductName))
+            {
+                query.Where(w => w.Name.Contains(request.ProductName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (request.FromPostedDate.HasValue && request.ToPostedDate.HasValue)
+            {
+                query.Where(w => w.PostedDate >= request.FromPostedDate.Value
+                    && w.PostedDate <= request.ToPostedDate.Value);
+            }
+
+            if (request.MinPrice.HasValue && request.MaxPrice.HasValue)
+            {
+                query.Where(w => w.Price >= request.MinPrice.Value
+                    && w.Price <= request.MaxPrice.Value);
+            }
+
+            return await query
+                .OrderByDescending(x => x.PostedDate)
+                .ToListAsync();
         }
     }
 }
